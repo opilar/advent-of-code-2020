@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 #[aoc_generator(day1)]
-pub fn input_generator(input: &str) -> Vec<i64> {
+fn input_generator(input: &str) -> Vec<i64> {
     input
         .lines()
         .map(|s| s.parse().unwrap())
