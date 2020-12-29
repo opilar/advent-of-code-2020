@@ -1,4 +1,7 @@
-use std::ops::Add;
+use std::{
+    ops::{Add, Mul},
+    usize,
+};
 
 struct Row {
     cells: Vec<Cell>,
@@ -51,10 +54,11 @@ impl Map {
         }
     }
 
-    fn iter(&self) -> SlopeIterator {
+    fn iter_with_slope(&self, slope: Position) -> SlopeIterator {
         SlopeIterator{
             position: Position{ col: 0, row: 0 },
             map: &self,
+            slope: slope,
         }
     }
 }
@@ -62,13 +66,14 @@ impl Map {
 struct SlopeIterator<'a> {
     position: Position,
     map: &'a Map,
+    slope: Position,
 }
 
 impl Iterator for SlopeIterator<'_> {
     type Item = Cell;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.position = self.position + SLOPE;
+        self.position = self.position + self.slope;
         self.map.at(self.position)
     }
 }
@@ -89,7 +94,6 @@ impl Add for Position {
     }
 }
 
-const SLOPE: Position = Position{ row: 1, col: 3 };
 
 #[aoc_generator(day3)]
 fn input_generator(input: &str) -> Map {
@@ -98,5 +102,24 @@ fn input_generator(input: &str) -> Map {
 
 #[aoc(day3, part1)]
 fn part1(map: &Map) -> usize {
-    map.iter().filter(|c| *c == Cell::Tree).count()
+    const SLOPE: Position = Position{ row: 1, col: 3 };
+
+    count_trees(map, SLOPE)
+}
+
+#[aoc(day3, part2)]
+fn part2(map: &Map) -> usize {
+    let slopes = vec![
+        Position{ row: 1, col: 1 },
+        Position{ row: 1, col: 3 },
+        Position{ row: 1, col: 5 },
+        Position{ row: 1, col: 7 },
+        Position{ row: 2, col: 1 },
+    ];
+
+    slopes.iter().map(|slope| count_trees(map, *slope)).fold(1, usize::mul)  
+}
+
+fn count_trees(map: &Map, slope: Position) -> usize {
+    map.iter_with_slope(slope).filter(|c| *c == Cell::Tree).count()    
 }
