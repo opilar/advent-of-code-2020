@@ -1,0 +1,102 @@
+use std::ops::Add;
+
+struct Row {
+    cells: Vec<Cell>,
+}
+
+impl Row {
+    fn parse(s: &str) -> Self {
+        let cells = s.chars().map(Cell::parse).collect();
+        Row { cells }
+    }
+
+    fn at(&self, col: usize) -> Cell {
+        let col = col % self.cells.len();
+        self.cells[col]
+    }
+}
+
+#[derive(Copy, Clone, PartialEq)]
+enum Cell {
+    Open,
+    Tree,
+}
+
+impl Cell {
+    fn parse(c: char) -> Cell {
+        match c {
+        '.' => Cell::Open,
+        '#' => Cell::Tree,
+        _ => panic!("unexpected cell char {:?}", c),
+        }
+    }
+}
+
+struct Map {
+    rows: Vec<Row>,
+}
+
+impl Map {
+    fn parse(s: &str) -> Self {
+        let rows = s.lines().map(Row::parse).collect();
+        Map { rows }
+    }
+
+    fn at(&self, pos: Position) -> Option<Cell> {
+        if pos.row >= self.rows.len() {
+            None
+        } else {
+            let row = &self.rows[pos.row];
+            Some(row.at(pos.col))
+        }
+    }
+
+    fn iter(&self) -> SlopeIterator {
+        SlopeIterator{
+            position: Position{ col: 0, row: 0 },
+            map: &self,
+        }
+    }
+}
+
+struct SlopeIterator<'a> {
+    position: Position,
+    map: &'a Map,
+}
+
+impl Iterator for SlopeIterator<'_> {
+    type Item = Cell;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.position = self.position + SLOPE;
+        self.map.at(self.position)
+    }
+}
+
+#[derive(Copy, Clone)]
+struct Position {
+    row: usize,
+    col: usize,
+}
+
+impl Add for Position {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        let row = self.row + other.row;
+        let col = self.col + other.col;
+        Position{ row, col }
+    }
+}
+
+const SLOPE: Position = Position{ row: 1, col: 3 };
+
+#[aoc_generator(day3)]
+fn input_generator(input: &str) -> Map {
+    Map::parse(input)
+}
+
+#[aoc(day3, part1)]
+fn part1(map: &Map) -> usize {
+    map.iter().filter(|c| *c == Cell::Tree).count()
+}
