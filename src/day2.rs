@@ -11,10 +11,10 @@ impl Input {
         if components.len() != 2 {
             return Err(format!("wrong input: {:?}", s));
         }
-        return Ok(Input {
+        Ok(Input {
             policy: Policy::parse(components[0])?,
             password: components[1].to_owned(),
-        });
+        })
     }
 
     fn validate_part1(&self) -> bool {
@@ -42,7 +42,7 @@ impl Policy {
 
         let components: Vec<&str> = components[1].split(' ').collect();
         let highest = usize::from_str(components[0]).unwrap();
-        let letter = components[1].chars().nth(0).unwrap();
+        let letter = components[1].chars().next().unwrap();
 
         Ok(Policy {
             lowest,

@@ -58,7 +58,7 @@ impl Map {
         SlopeIterator {
             position: Position { col: 0, row: 0 },
             map: &self,
-            slope: slope,
+            slope,
         }
     }
 }
