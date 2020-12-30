@@ -11,10 +11,10 @@ impl Input {
         if components.len() != 2 {
             return Err(format!("wrong input: {:?}", s));
         }
-        return Ok(Input{
+        return Ok(Input {
             policy: Policy::parse(components[0])?,
             password: components[1].to_owned(),
-        })
+        });
     }
 
     fn validate_part1(&self) -> bool {
@@ -44,7 +44,7 @@ impl Policy {
         let highest = usize::from_str(components[0]).unwrap();
         let letter = components[1].chars().nth(0).unwrap();
 
-        Ok(Policy{
+        Ok(Policy {
             lowest,
             highest,
             letter,
@@ -57,18 +57,15 @@ impl Policy {
     }
 
     fn is_valid_part2(&self, s: &str) -> bool {
-        let lowest_char = s.chars().nth(self.lowest-1).unwrap();
-        let highest_char = s.chars().nth(self.highest-1).unwrap();
+        let lowest_char = s.chars().nth(self.lowest - 1).unwrap();
+        let highest_char = s.chars().nth(self.highest - 1).unwrap();
         (lowest_char == self.letter) ^ (highest_char == self.letter)
     }
 }
 
 #[aoc_generator(day2)]
 fn input_generator(input: &str) -> Vec<Input> {
-    input
-        .lines()
-        .map(|s| Input::parse(s).unwrap())
-        .collect()
+    input.lines().map(|s| Input::parse(s).unwrap()).collect()
 }
 
 #[aoc(day2, part1)]

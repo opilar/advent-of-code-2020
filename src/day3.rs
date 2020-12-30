@@ -28,9 +28,9 @@ enum Cell {
 impl Cell {
     fn parse(c: char) -> Cell {
         match c {
-        '.' => Cell::Open,
-        '#' => Cell::Tree,
-        _ => panic!("unexpected cell char {:?}", c),
+            '.' => Cell::Open,
+            '#' => Cell::Tree,
+            _ => panic!("unexpected cell char {:?}", c),
         }
     }
 }
@@ -55,8 +55,8 @@ impl Map {
     }
 
     fn iter_with_slope(&self, slope: Position) -> SlopeIterator {
-        SlopeIterator{
-            position: Position{ col: 0, row: 0 },
+        SlopeIterator {
+            position: Position { col: 0, row: 0 },
             map: &self,
             slope: slope,
         }
@@ -90,10 +90,9 @@ impl Add for Position {
     fn add(self, other: Self) -> Self {
         let row = self.row + other.row;
         let col = self.col + other.col;
-        Position{ row, col }
+        Position { row, col }
     }
 }
-
 
 #[aoc_generator(day3)]
 fn input_generator(input: &str) -> Map {
@@ -102,7 +101,7 @@ fn input_generator(input: &str) -> Map {
 
 #[aoc(day3, part1)]
 fn part1(map: &Map) -> usize {
-    const SLOPE: Position = Position{ row: 1, col: 3 };
+    const SLOPE: Position = Position { row: 1, col: 3 };
 
     count_trees(map, SLOPE)
 }
@@ -110,16 +109,21 @@ fn part1(map: &Map) -> usize {
 #[aoc(day3, part2)]
 fn part2(map: &Map) -> usize {
     let slopes = vec![
-        Position{ row: 1, col: 1 },
-        Position{ row: 1, col: 3 },
-        Position{ row: 1, col: 5 },
-        Position{ row: 1, col: 7 },
-        Position{ row: 2, col: 1 },
+        Position { row: 1, col: 1 },
+        Position { row: 1, col: 3 },
+        Position { row: 1, col: 5 },
+        Position { row: 1, col: 7 },
+        Position { row: 2, col: 1 },
     ];
 
-    slopes.iter().map(|slope| count_trees(map, *slope)).fold(1, usize::mul)  
+    slopes
+        .iter()
+        .map(|slope| count_trees(map, *slope))
+        .fold(1, usize::mul)
 }
 
 fn count_trees(map: &Map, slope: Position) -> usize {
-    map.iter_with_slope(slope).filter(|c| *c == Cell::Tree).count()    
+    map.iter_with_slope(slope)
+        .filter(|c| *c == Cell::Tree)
+        .count()
 }
