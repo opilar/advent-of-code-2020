@@ -1,3 +1,20 @@
+use std::{u32, u64};
+
+#[aoc_generator(day4)]
+fn input_generator(input: &str) -> Batch {
+    Batch::parse(input)
+}
+
+#[aoc(day4, part1)]
+fn part1(batch: &Batch) -> usize {
+    batch.passports.len()
+}
+
+#[aoc(day4, part2)]
+fn part2(batch: &Batch) -> usize {
+    batch.passports.len()
+}
+
 struct Batch {
     passports: Vec<Passport>,
 }
@@ -16,13 +33,13 @@ impl Batch {
 
 #[derive(Debug, PartialEq)]
 struct Passport {
-    byr: String,
-    iyr: String,
-    eyr: String,
-    hgt: String,
-    hcl: String,
-    ecl: String,
-    pid: String,
+    byr: BirthYear,
+    iyr: IssueYear,
+    eyr: ExpirationYear,
+    hgt: Height,
+    hcl: HairColor,
+    ecl: EyeColor,
+    pid: PassportID,
     cid: Option<String>,
 }
 
@@ -44,13 +61,55 @@ impl Passport {
 
 fn parse_pair(builder: PassportBuilder, key: &str, value: String) -> PassportBuilder {
     match key {
-        "byr" => builder.with_byr(value),
-        "iyr" => builder.with_iyr(value),
-        "eyr" => builder.with_eyr(value),
-        "hgt" => builder.with_hgt(value),
-        "hcl" => builder.with_hcl(value),
-        "ecl" => builder.with_ecl(value),
-        "pid" => builder.with_pid(value),
+        "byr" => {
+            if let Some(year) = BirthYear::parse(&value) {
+                builder.with_byr(year)
+            } else {
+                builder
+            }
+        }
+        "iyr" => {
+            if let Some(year) = IssueYear::parse(&value) {
+                builder.with_iyr(year)
+            } else {
+                builder
+            }
+        }
+        "eyr" => {
+            if let Some(year) = ExpirationYear::parse(&value) {
+                builder.with_eyr(year)
+            } else {
+                builder
+            }
+        }
+        "hgt" => {
+            if let Some(hgt) = Height::parse(&value) {
+                builder.with_hgt(hgt)
+            } else {
+                builder
+            }
+        }
+        "hcl" => {
+            if let Some(hcl) = HairColor::parse(&value) {
+                builder.with_hcl(hcl)
+            } else {
+                builder
+            }
+        }
+        "ecl" => {
+            if let Some(ecl) = EyeColor::parse(&value) {
+                builder.with_ecl(ecl)
+            } else {
+                builder
+            }
+        }
+        "pid" => {
+            if let Some(pid) = PassportID::parse(&value) {
+                builder.with_pid(pid)
+            } else {
+                builder
+            }
+        }
         "cid" => builder.with_cid(value),
         _ => panic!("unexpected pair key: {:?}", key),
     }
@@ -58,48 +117,48 @@ fn parse_pair(builder: PassportBuilder, key: &str, value: String) -> PassportBui
 
 #[derive(Default)]
 struct PassportBuilder {
-    byr: Option<String>,
-    iyr: Option<String>,
-    eyr: Option<String>,
-    hgt: Option<String>,
-    hcl: Option<String>,
-    ecl: Option<String>,
-    pid: Option<String>,
+    byr: Option<BirthYear>,
+    iyr: Option<IssueYear>,
+    eyr: Option<ExpirationYear>,
+    hgt: Option<Height>,
+    hcl: Option<HairColor>,
+    ecl: Option<EyeColor>,
+    pid: Option<PassportID>,
     cid: Option<String>,
 }
 
 impl PassportBuilder {
-    fn with_byr(mut self, byr: String) -> Self {
+    fn with_byr(mut self, byr: BirthYear) -> Self {
         self.byr = Some(byr);
         self
     }
 
-    fn with_iyr(mut self, iyr: String) -> Self {
+    fn with_iyr(mut self, iyr: IssueYear) -> Self {
         self.iyr = Some(iyr);
         self
     }
 
-    fn with_eyr(mut self, eyr: String) -> Self {
+    fn with_eyr(mut self, eyr: ExpirationYear) -> Self {
         self.eyr = Some(eyr);
         self
     }
 
-    fn with_hgt(mut self, hgt: String) -> Self {
+    fn with_hgt(mut self, hgt: Height) -> Self {
         self.hgt = Some(hgt);
         self
     }
 
-    fn with_hcl(mut self, hcl: String) -> Self {
+    fn with_hcl(mut self, hcl: HairColor) -> Self {
         self.hcl = Some(hcl);
         self
     }
 
-    fn with_ecl(mut self, ecl: String) -> Self {
+    fn with_ecl(mut self, ecl: EyeColor) -> Self {
         self.ecl = Some(ecl);
         self
     }
 
-    fn with_pid(mut self, pid: String) -> Self {
+    fn with_pid(mut self, pid: PassportID) -> Self {
         self.pid = Some(pid);
         self
     }
@@ -134,14 +193,204 @@ impl PassportBuilder {
     }
 }
 
-#[aoc_generator(day4)]
-fn input_generator(input: &str) -> Batch {
-    Batch::parse(input)
+#[derive(Debug, PartialEq)]
+struct BirthYear {
+    year: u64,
 }
 
-#[aoc(day4, part1)]
-fn part1(batch: &Batch) -> usize {
-    batch.passports.len()
+impl BirthYear {
+    const BOUNDS: Bounds = Bounds {
+        least: 1920,
+        most: 2002,
+    };
+
+    fn parse(s: &str) -> Option<Self> {
+        let res = parse_number_in_bounds(s, &BirthYear::BOUNDS);
+        if let Some(year) = res {
+            Some(BirthYear { year })
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+struct IssueYear {
+    year: u64,
+}
+
+impl IssueYear {
+    const BOUNDS: Bounds = Bounds {
+        least: 2010,
+        most: 2020,
+    };
+
+    fn parse(s: &str) -> Option<Self> {
+        let res = parse_number_in_bounds(s, &IssueYear::BOUNDS);
+        if let Some(year) = res {
+            Some(IssueYear { year })
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+struct ExpirationYear {
+    year: u64,
+}
+
+impl ExpirationYear {
+    const BOUNDS: Bounds = Bounds {
+        least: 2020,
+        most: 2030,
+    };
+
+    fn parse(s: &str) -> Option<Self> {
+        let res = parse_number_in_bounds(s, &ExpirationYear::BOUNDS);
+        if let Some(year) = res {
+            Some(ExpirationYear { year })
+        } else {
+            None
+        }
+    }
+}
+
+struct Bounds {
+    least: u64,
+    most: u64,
+}
+
+impl Bounds {
+    fn in_bound(&self, num: u64) -> bool {
+        num >= self.least && num <= self.most
+    }
+}
+
+fn parse_number_in_bounds(s: &str, bounds: &Bounds) -> Option<u64> {
+    if let Ok(num) = s.parse() {
+        if bounds.in_bound(num) {
+            Some(num)
+        } else {
+            None
+        }
+    } else {
+        None
+    }
+}
+
+#[derive(Debug, PartialEq)]
+enum Height {
+    HeightCm { centimeters: u64 },
+    HeightIn { inches: u64 },
+}
+
+impl Height {
+    fn parse(s: &str) -> Option<Self> {
+        if s.ends_with(Height::CM_SUFFIX) {
+            Height::parse_centimeters(s)
+        } else if s.ends_with(Height::IN_SUFFIX) {
+            Height::parse_inches(s)
+        } else {
+            None
+        }
+    }
+
+    const CM_BOUNDS: Bounds = Bounds {
+        least: 150,
+        most: 193,
+    };
+
+    const IN_BOUNDS: Bounds = Bounds {
+        least: 59,
+        most: 76,
+    };
+
+    fn parse_centimeters(s: &str) -> Option<Self> {
+        if let Some(cm_str) = s.strip_suffix(Height::CM_SUFFIX) {
+            let res = parse_number_in_bounds(cm_str, &Height::CM_BOUNDS);
+            if let Some(cm) = res {
+                Some(Height::HeightCm { centimeters: cm })
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    fn parse_inches(s: &str) -> Option<Self> {
+        if let Some(cm_str) = s.strip_suffix(Height::IN_SUFFIX) {
+            let res = parse_number_in_bounds(cm_str, &Height::IN_BOUNDS);
+            if let Some(inches) = res {
+                Some(Height::HeightIn { inches })
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    const CM_SUFFIX: &'static str = "cm";
+    const IN_SUFFIX: &'static str = "in";
+}
+
+#[derive(Debug, PartialEq)]
+struct HairColor {
+    color: u32,
+}
+
+impl HairColor {
+    fn parse(s: &str) -> Option<Self> {
+        if !s.starts_with('#') || s.len() != 7 {
+            None
+        } else {
+            u32::from_str_radix(&s[1..], 16)
+                .map(|c| HairColor { color: c })
+                .ok()
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+enum EyeColor {
+    Amb,
+    Blu,
+    Brn,
+    Gry,
+    Grn,
+    Hzl,
+    Oth,
+}
+
+impl EyeColor {
+    fn parse(s: &str) -> Option<Self> {
+        match s {
+            "amb" => Some(EyeColor::Amb),
+            "blu" => Some(EyeColor::Blu),
+            "brn" => Some(EyeColor::Brn),
+            "gry" => Some(EyeColor::Gry),
+            "grn" => Some(EyeColor::Grn),
+            "hzl" => Some(EyeColor::Hzl),
+            "oth" => Some(EyeColor::Oth),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+struct PassportID {
+    id: u32,
+}
+
+impl PassportID {
+    fn parse(s: &str) -> Option<Self> {
+        if s.len() != 9 {
+            return None;
+        }
+        s.parse::<u32>().map(|id| PassportID { id }).ok()
+    }
 }
 
 #[cfg(test)]
@@ -155,14 +404,14 @@ mod tests {
                 "ecl:gry pid:860033327 eyr:2020 hcl:#fffffd\nbyr:1937 iyr:2017 cid:147 hgt:183cm"
             ),
             Some(Passport {
-                ecl: "gry".to_owned(),
-                pid: "860033327".to_owned(),
-                eyr: "2020".to_owned(),
-                hcl: "#fffffd".to_owned(),
-                byr: "1937".to_owned(),
-                iyr: "2017".to_owned(),
+                ecl: EyeColor::Gry,
+                pid: PassportID { id: 860033327 },
+                eyr: ExpirationYear { year: 2020 },
+                hcl: HairColor { color: 0xfffffd },
+                byr: BirthYear { year: 1937 },
+                iyr: IssueYear { year: 2017 },
                 cid: Some("147".to_owned()),
-                hgt: "183cm".to_owned(),
+                hgt: Height::HeightCm { centimeters: 183 },
             })
         );
 
@@ -178,14 +427,14 @@ mod tests {
                 "hcl:#ae17e1 iyr:2013\neyr:2024\necl:brn pid:760753108 byr:1931\nhgt:179cm"
             ),
             Some(Passport {
-                ecl: "brn".to_owned(),
-                pid: "760753108".to_owned(),
-                eyr: "2024".to_owned(),
-                hcl: "#ae17e1".to_owned(),
-                byr: "1931".to_owned(),
-                iyr: "2013".to_owned(),
+                ecl: EyeColor::Brn,
+                pid: PassportID { id: 760753108 },
+                eyr: ExpirationYear { year: 2024 },
+                hcl: HairColor { color: 0xae17e1 },
+                byr: BirthYear { year: 1931 },
+                iyr: IssueYear { year: 2013 },
                 cid: None,
-                hgt: "179cm".to_owned(),
+                hgt: Height::HeightCm { centimeters: 179 },
             })
         );
 
