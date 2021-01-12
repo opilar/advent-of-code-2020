@@ -8,6 +8,19 @@ fn part1(seats: &[Seat]) -> usize {
     seats.iter().map(|s| s.id()).max().unwrap()
 }
 
+#[aoc(day5, part2)]
+fn part2(seats: &[Seat]) -> usize {
+    let first = seats.iter().map(|s| s.id()).min().unwrap();
+    let last = seats.iter().map(|s| s.id()).max().unwrap();
+    let number_of_seats = last - first + 1;
+    let sum_of_tickets = number_of_seats * (first + last) / 2;
+    seats
+        .iter()
+        .map(|s| s.id())
+        .fold(sum_of_tickets, |sum, s| sum - s)
+}
+
+#[derive(Debug, PartialEq)]
 struct Seat {
     row: usize,
     col: usize,
@@ -15,7 +28,7 @@ struct Seat {
 
 impl Seat {
     fn id(&self) -> usize {
-        self.row * ROW_SIZE + self.col
+        self.row * COLS + self.col
     }
 
     fn parse(s: &str) -> Self {
@@ -55,4 +68,17 @@ impl Seat {
     }
 }
 
-const ROW_SIZE: usize = 8;
+const COLS: usize = 8;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_seat_id() {
+        assert_eq!(Seat::parse("FBFBBFFRLR"), Seat { row: 44, col: 5 });
+        assert_eq!(Seat::parse("BFFFBBFRRR"), Seat { row: 70, col: 7 });
+        assert_eq!(Seat::parse("FFFBBBFRRR"), Seat { row: 14, col: 7 });
+        assert_eq!(Seat::parse("BBFFBBFRLL"), Seat { row: 102, col: 4 });
+    }
+}
